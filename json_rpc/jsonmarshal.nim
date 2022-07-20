@@ -32,6 +32,7 @@ proc fromJson*[T](n: JsonNode, argName: string, result: var Option[T])
 
 # This can't be forward declared: https://github.com/nim-lang/Nim/issues/7868
 proc fromJson*[T: enum](n: JsonNode, argName: string, result: var T) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
 
   let v = n.getBiggestInt()
@@ -41,6 +42,7 @@ proc fromJson*[T: enum](n: JsonNode, argName: string, result: var T) =
 
 # This can't be forward declared: https://github.com/nim-lang/Nim/issues/7868
 proc fromJson*[T: object|tuple](n: JsonNode, argName: string, result: var T) =
+  doAssert not n.isNil
   n.kind.expect(JObject, argName)
   for k, v in fieldPairs(result):
     if v is Option and not n.hasKey(k):
@@ -63,23 +65,28 @@ proc fromJson*[T](n: JsonNode, argName: string, result: var Option[T]) =
     result = some(val)
 
 proc fromJson*(n: JsonNode, argName: string, result: var bool) =
+  doAssert not n.isNil
   n.kind.expect(JBool, argName)
   result = n.getBool()
 
 proc fromJson*(n: JsonNode, argName: string, result: var int) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   result = n.getInt()
 
 proc fromJson*[T: ref object](n: JsonNode, argName: string, result: var T) =
+  doAssert not n.isNil
   n.kind.expect(JObject, argName)
   result = new T
   fromJson(n, argName, result[])
 
 proc fromJson*(n: JsonNode, argName: string, result: var int64) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   result = n.getBiggestInt().int64
 
 proc fromJson*(n: JsonNode, argName: string, result: var uint64) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   let asInt = n.getBiggestInt()
   # signed -> unsigned conversions are unchecked
@@ -90,6 +97,7 @@ proc fromJson*(n: JsonNode, argName: string, result: var uint64) =
   result = uint64(asInt)
 
 proc fromJson*(n: JsonNode, argName: string, result: var uint32) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   let asInt = n.getBiggestInt()
   # signed -> unsigned conversions are unchecked
@@ -104,16 +112,19 @@ proc fromJson*(n: JsonNode, argName: string, result: var uint32) =
   result = uint32(asInt)
 
 proc fromJson*(n: JsonNode, argName: string, result: var ref int64) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   new result
   result[] = n.getInt()
 
 proc fromJson*(n: JsonNode, argName: string, result: var ref int) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   new result
   result[] = n.getInt()
 
 proc fromJson*(n: JsonNode, argName: string, result: var byte) =
+  doAssert not n.isNil
   n.kind.expect(JInt, argName)
   let v = n.getInt()
   if v > 255 or v < 0:
@@ -121,10 +132,12 @@ proc fromJson*(n: JsonNode, argName: string, result: var byte) =
   result = byte(v)
 
 proc fromJson*(n: JsonNode, argName: string, result: var float) =
+  doAssert not n.isNil
   n.kind.expect(JFloat, argName)
   result = n.getFloat()
 
 proc fromJson*(n: JsonNode, argName: string, result: var string) =
+  doAssert not n.isNil
   n.kind.expect(JString, argName)
   result = n.getStr()
 
@@ -134,12 +147,14 @@ proc fromJson*[T](n: JsonNode, argName: string, result: var seq[T]) =
       result = hexToSeqByte n.getStr()
       return
 
+  doAssert not n.isNil
   n.kind.expect(JArray, argName)
   result = newSeq[T](n.len)
   for i in 0 ..< n.len:
     fromJson(n[i], argName, result[i])
 
 proc fromJson*[N, T](n: JsonNode, argName: string, result: var array[N, T]) =
+  doAssert not n.isNil
   n.kind.expect(JArray, argName)
   if n.len > result.len:
     raise newException(ValueError, "Parameter \"" & argName & "\" item count is too big for array")
