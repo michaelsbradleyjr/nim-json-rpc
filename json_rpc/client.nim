@@ -152,6 +152,7 @@ proc createRpcFromSig*(clientType, rpcDecl: NimNode): NimNode =
   callBody.add(quote do:
     # `rpcResult` is of type `Response`
     let `rpcResult` = await `clientIdent`.call(`pathStr`, `jsonParamIdent`)
+    echo "FOO_JSONRESPONSE: ", `rpcResult`
   )
 
   if customReturnType:
