@@ -1,3 +1,5 @@
+import std/json
+
 type
   JsonRpcError* = object of CatchableError
     ## Base type of all nim-json-rpc errors
@@ -21,3 +23,8 @@ type
     ## This could be raised by request handlers when the server
     ## needs to respond with a custom error code.
     code*: int
+
+  InvalidRequestWithData* = object of InvalidRequest
+    ## This could be raised by request handlers when the server needs to
+    ## respond with a custom error code and data.
+    data*: JsonNode

@@ -80,6 +80,8 @@ proc route*(router: RpcRouter, node: JsonNode): Future[StringOfJson] {.async, gc
     try:
       let res = await rpcProc(if params == nil: newJArray() else: params)
       return wrapReply(id, res)
+    except InvalidRequestWithData as err:
+      return wrapError(err.code, err.msg, id, err.data)
     except InvalidRequest as err:
       return wrapError(err.code, err.msg, id)
     except CatchableError as err:
